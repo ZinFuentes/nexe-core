@@ -1,30 +1,46 @@
 import { MoreHorizontal } from "lucide-react";
 
-export default function SidebarFooter({ userName, userRole }) {
+export default function SidebarFooter({
+  userName = "Usuari",
+  userRole = "Docent",
+  userPhoto = null,
+  isCollapsed
+}) {
+  const initial = userName ? userName[0].toUpperCase() : "U";
+
   return (
     <button
       type="button"
-      className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left
-                 hover:bg-surfaceHover transition-colors"
+      className={`
+        flex w-full items-center rounded-md outline-none
+        transition-colors duration-150
+        ${isCollapsed ? "justify-center p-1" : "gap-2 px-2 py-1.5 hover:bg-slate-50"}
+      `}
+      aria-label="User menu"
     >
-      <div className="h-8 w-8 rounded-full bg-borderStrong/40 flex items-center justify-center text-[12px] font-medium text-text-secondary">
-        {userName?.[0] ?? "U"}
+      {/* Avatar */}
+      <div className="h-[26px] w-[26px] rounded-full bg-slate-200 overflow-hidden flex items-center justify-center shrink-0 border border-slate-100">
+        {userPhoto ? (
+          <img src={userPhoto} alt={userName} className="h-full w-full object-cover" />
+        ) : (
+          <span className="text-[11px] font-bold text-slate-600">{initial}</span>
+        )}
       </div>
 
-      <div className="flex flex-col items-start min-w-0">
-        <div className="text-[13px] font-medium leading-tight truncate">
-          {userName}
-        </div>
-        <div className="text-[11px] text-text-tertiary leading-tight truncate">
-          {userRole}
-        </div>
-      </div>
+      {!isCollapsed && (
+        <>
+          <div className="flex flex-col items-start min-w-0 text-left">
+            <div className="text-[13px] font-medium leading-tight truncate text-slate-900 w-full">
+              {userName}
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium leading-tight truncate w-full">
+              {userRole}
+            </div>
+          </div>
 
-      <MoreHorizontal
-        size={16}
-        strokeWidth={1.75}
-        className="ml-auto text-text-tertiary"
-      />
+          <MoreHorizontal size={15} className="ml-auto text-slate-300" />
+        </>
+      )}
     </button>
   );
 }

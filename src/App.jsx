@@ -1,59 +1,41 @@
-import { useState } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import SidebarLayout from "./core/layout/SidebarLayout";
 import Sidebar from "./core/layout/Sidebar";
 import SidebarHeader from "./core/layout/SidebarHeader";
 import SidebarNav from "./core/layout/SidebarNav";
 import SidebarFooter from "./core/layout/SidebarFooter";
 
-function Stub({ title }) {
-  return (
-    <div className="p-12">
-      <h1 className="text-2xl font-semibold text-text-primary">{title}</h1>
-      <p className="mt-3 text-text-secondary max-w-content">
-        Aquí anirà el routing i les vistes dels mòduls.
-      </p>
+const PlaceholderView = ({ title, color }) => (
+  <div className="p-12 animate-in fade-in duration-500">
+    <h1 className="text-3xl font-bold mb-4" style={{ color }}>{title}</h1>
+    <div className="p-6 border border-border rounded-lg bg-white shadow-sm">
+      <p className="text-text-secondary">Módulo <strong>{title}</strong> activo.</p>
     </div>
-  );
-}
+  </div>
+);
 
 export default function App() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
   return (
-    <SidebarLayout
-      sidebar={
-        <Sidebar
-          isCollapsed={isCollapsed}
-          onToggle={() => setIsCollapsed((v) => !v)}
-          header={
-            <SidebarHeader
-              greeting="Bona tarda, Cinto"
-              centreName="Escola Jacint Verdaguer"
-              isCollapsed={isCollapsed}
-            />
-          }
-          center={<SidebarNav isCollapsed={isCollapsed} />}
-          footer={
-            <SidebarFooter
-              userName="Cinto Fuentes"
-              userRole="Coordinador"
-              isCollapsed={isCollapsed}
-            />
-          }
-        />
-      }
-    >
-      <Routes>
-        <Route path="/" element={<Navigate to="/school" replace />} />
-        <Route path="/school" element={<Stub title="L'escola, avui" />} />
-        <Route path="/me" element={<Stub title="El meu espai" />} />
-        <Route path="/knowledge" element={<Stub title="Sabers" />} />
-        <Route path="/people" element={<Stub title="Persones" />} />
-        <Route path="/papers" element={<Stub title="Papers" />} />
-        <Route path="/management" element={<Stub title="Gestió" />} />
-        <Route path="*" element={<Navigate to="/school" replace />} />
-      </Routes>
-    </SidebarLayout>
+    <BrowserRouter>
+      <SidebarLayout
+        sidebar={
+          <Sidebar
+            header={<SidebarHeader greeting="Bona tarda, Cinto!" centreName="Escola Jacint Verdaguer" />}
+            center={<SidebarNav />}
+            footer={<SidebarFooter userName="Cinto Fuentes" userRole="Coordinador" />}
+          />
+        }
+      >
+        <Routes>
+          <Route path="/" element={<Navigate to="/school" replace />} />
+          <Route path="/school" element={<PlaceholderView title="L'escola, avui" color="#4F46E5" />} />
+          <Route path="/me" element={<PlaceholderView title="El meu espai" color="#7C3AED" />} />
+          <Route path="/knowledge" element={<PlaceholderView title="Sabers" color="#0EA5E9" />} />
+          <Route path="/people" element={<PlaceholderView title="Persones" color="#10B981" />} />
+          <Route path="/papers" element={<PlaceholderView title="Papers" color="#F59E0B" />} />
+          <Route path="/management" element={<PlaceholderView title="Gestió" color="#8B5CF6" />} />
+        </Routes>
+      </SidebarLayout>
+    </BrowserRouter>
   );
 }

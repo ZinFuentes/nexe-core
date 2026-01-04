@@ -1,43 +1,37 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
 export default function Sidebar({ header, center, footer }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const toggle = () => setIsCollapsed((v) => !v);
 
   return (
     <aside
-      className={[
-        "relative h-full shrink-0 border-r border-border bg-surface",
-        collapsed ? "w-[72px]" : "w-[240px]",
-      ].join(" ")}
+      className={`
+        flex flex-col h-full bg-white border-r border-slate-200
+        transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
+        overflow-hidden
+        ${isCollapsed ? "w-[68px]" : "w-[220px]"}
+      `}
     >
-      <div className="grid h-full" style={{ gridTemplateRows: "84px 1fr 72px" }}>
-        <div className={collapsed ? "px-3 py-3" : "px-5 py-3"}>
-          {header}
-        </div>
-
-        <div className={collapsed ? "min-h-0 px-2 py-2 overflow-y-auto" : "min-h-0 px-5 py-2 overflow-y-auto"}>
-          {center}
-        </div>
-
-        <div className={collapsed ? "px-3 py-3 border-t border-border" : "px-5 py-3 border-t border-border"}>
-          {footer}
-        </div>
+      {/* Zona Branding */}
+      <div className="flex-shrink-0">
+        {header && React.cloneElement(header, { isCollapsed, onToggle: toggle })}
       </div>
 
-      <button
-        type="button"
-        onClick={() => setCollapsed((v) => !v)}
-        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className={[
-          "absolute right-2 top-3 z-50",
-          "flex h-8 w-8 items-center justify-center rounded-full",
-          "border border-border bg-surface shadow-sm",
-          "text-text-tertiary hover:text-text-secondary hover:bg-surfaceHover/60",
-        ].join(" ")}
-        title={collapsed ? "Obrir" : "Tancar"}
+      {/* Zona Navegación */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide">
+        {center && React.cloneElement(center, { isCollapsed })}
+      </div>
+
+      {/* Zona Usuario */}
+      <div
+        className={`
+          flex-shrink-0 border-t border-slate-100/60 bg-white
+          ${isCollapsed ? "p-1" : "p-1.5"}
+        `}
       >
-        <span className="text-[18px] leading-none">{collapsed ? "›" : "‹"}</span>
-      </button>
+        {footer && React.cloneElement(footer, { isCollapsed })}
+      </div>
     </aside>
   );
 }

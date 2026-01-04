@@ -1,22 +1,45 @@
-export default function SidebarHeader({ greeting, centreName, isCollapsed }) {
-  if (isCollapsed) {
-    return (
-      <div className="flex items-start justify-center pt-1">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-surface text-[13px] font-medium text-text-primary">
-          N
-        </div>
-      </div>
-    );
-  }
+import React, { useState, useEffect } from "react";
+import { Menu } from "lucide-react";
+
+export default function SidebarHeader({
+  centreName = "Jacint Verdaguer",
+  isCollapsed,
+  onToggle
+}) {
+  const [dateTime, setDateTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setDateTime(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedTime = dateTime.toLocaleTimeString("ca-ES", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 
   return (
-    <div className="pl-2 border-l-2 border-text-primary/80 leading-tight">
-      <div className="text-[13px] font-medium text-text-primary">
-        {greeting}
-      </div>
-      <div className="mt-0.5 text-[11px] font-normal text-text-tertiary">
-        {centreName}
-      </div>
+    <div className={`relative w-full bg-white ${isCollapsed ? "h-[52px]" : "h-[64px]"}`}>
+      {!isCollapsed && (
+        <div className="absolute top-2 left-3 select-none leading-tight max-w-[180px]">
+          <div className="text-[13px] font-medium tracking-tight text-slate-800 truncate">
+            {centreName}
+          </div>
+          <div className="mt-1 text-[10px] font-semibold tracking-widest text-slate-400 tabular-nums">
+            · {formattedTime} h
+          </div>
+        </div>
+      )}
+
+      <button
+        onClick={onToggle}
+        type="button"
+        aria-label="Toggle sidebar"
+        className="absolute top-2 right-2 p-1 rounded-md outline-none text-slate-300 hover:text-slate-500 transition-colors"
+      >
+        <Menu size={16} />
+      </button>
     </div>
   );
 }
+

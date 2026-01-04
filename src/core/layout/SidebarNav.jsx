@@ -1,81 +1,55 @@
 import { NavLink } from "react-router-dom";
-import { NAV } from "../../config/navigation";
+import NavItem from "./NavItem";
+import { NAVIGATION_CONFIG } from "../config/navigation";
 
-function cx(...parts) {
-  return parts.filter(Boolean).join(" ");
-}
-
-function NavItem({ to, label, Icon, isDashboard }) {
+export default function SidebarNav({ isCollapsed }) {
   return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        cx(
-          "group flex w-full items-center gap-3 rounded-md px-3",
-          isDashboard ? "py-2.5" : "py-2",
-          "text-left transition-colors",
-          "hover:bg-surfaceHover",
-          isActive ? "bg-surfaceHover" : ""
-        )
-      }
-    >
-      {({ isActive }) => (
-        <>
-          <Icon
-            size={18}
-            strokeWidth={isActive ? 2.25 : 1.75}
-            className={cx(
-              "shrink-0 transition-colors",
-              isActive ? "text-text-primary" : "text-text-tertiary group-hover:text-text-secondary"
-            )}
-          />
-          <span
-            className={cx(
-              "truncate",
-              isDashboard ? "text-[14px]" : "text-[13px]",
-              isActive ? "font-semibold text-text-primary" : "font-medium text-text-secondary"
-            )}
-          >
-            {label}
-          </span>
-        </>
-      )}
-    </NavLink>
-  );
-}
+    <nav className="flex flex-col h-full">
+      {/* Aire bajo la marca */}
+      <div className={`${isCollapsed ? "h-4" : "h-12"}`} />
 
-export default function SidebarNav() {
-  const dashboards = NAV.slice(0, 2);
-  const repos = NAV.slice(2);
-
-  return (
-    <div className="flex h-full flex-col py-3">
-      <div className="space-y-1">
-        {dashboards.map((i) => (
-          <NavItem
-            key={i.key}
-            to={i.path}
-            label={i.label}
-            Icon={i.icon}
-            isDashboard
-          />
+      {/* DASHBOARDS */}
+      <div className="px-3 space-y-1">
+        {NAVIGATION_CONFIG.dashboards.map((item) => (
+          <NavLink key={item.key} to={item.path} style={{ textDecoration: "none" }}>
+            {({ isActive }) => (
+              <NavItem
+                item={item}
+                isActive={isActive}
+                isCollapsed={isCollapsed}
+                emphasis="primary"
+              />
+            )}
+          </NavLink>
         ))}
       </div>
 
-      <div className="mt-5 px-3 text-[10px] font-semibold uppercase tracking-widest text-text-tertiary">
-        Repositoris
-      </div>
+      {/* Separación por espacio, no por línea */}
+      <div className={`${isCollapsed ? "h-4" : "h-6"}`} />
 
-      <div className="mt-2 space-y-1">
-        {repos.map((i) => (
-          <NavItem
-            key={i.key}
-            to={i.path}
-            label={i.label}
-            Icon={i.icon}
-          />
-        ))}
+      {/* ARXIU / REPOS */}
+      <div className="px-3 flex-1">
+          {!isCollapsed && (
+            <div className="px-1 mb-3 text-[11px] font-semibold text-slate-500 uppercase tracking-widest opacity-80">
+              REPOSITORIS
+            </div>
+          )}
+
+        <div className="space-y-1">
+          {NAVIGATION_CONFIG.repositories.map((item) => (
+            <NavLink key={item.key} to={item.path} style={{ textDecoration: "none" }}>
+              {({ isActive }) => (
+                <NavItem
+                  item={item}
+                  isActive={isActive}
+                  isCollapsed={isCollapsed}
+                  emphasis="normal"
+                />
+              )}
+            </NavLink>
+          ))}
+        </div>
       </div>
-    </div>
+    </nav>
   );
 }
