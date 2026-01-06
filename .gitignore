@@ -1,15 +1,15 @@
-# Secrets
-creds.json
-*.creds.json
-*.secret.*
-.env
-.env.*
-.clasp.json
+# Node / build
 node_modules/
 dist/
 
+# Env & secrets
+.env
+.env.*
+*.secret.*
+
+# OS / logs
 .DS_Store
 *.log
 
-gas/index.htmlnode_modules/
-node_modules/
+# Clasp (solo si no quieres versionarlo)
+# .clasp.json
