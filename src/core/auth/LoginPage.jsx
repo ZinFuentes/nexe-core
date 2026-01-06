@@ -35,7 +35,7 @@ export default function LoginPage() {
               setError(`Error de connexió: ${err.message || err}`);
               setLoading(false);
             })
-            .validateUserAccess(userInfo.email);
+            .validateUserAccess();
         } else {
           console.warn('⚠️ Entorno Local: Simulando login');
           login({

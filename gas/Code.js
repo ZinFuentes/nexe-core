@@ -11,37 +11,89 @@ const SHEET_ID = '17vdEPyyg6L1b2L-nwLKLnHH7AkItc2eFSiMaVZhLeHo';
  */
 function doGet(e) {
   return HtmlService.createHtmlOutputFromFile('index')
-      .addMetaTag('viewport', 'width=device-width, initial-scale=1')
-      .setTitle('NEXE Core v20')
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+    .setTitle('NEXE Core v20');
+  // IMPORTANT: no ALLOWALL. Mejor no abrir clickjacking por defecto.
+}
+
+/**
+ * EMAIL SOURCE OF TRUTH
+ * Si podemos obtener el email del contexto GAS, ignoramos el email del cliente.
+ */
+function getCallerEmail_() {
+  try {
+    var email = Session.getActiveUser().getEmail();
+    return (email || '').toString().trim().toLowerCase();
+  } catch (e) {
+    return '';
+  }
+}
+
+/**
+ * Normaliza email para comparar (Gmail: ignora puntos y +alias)
+ */
+function normalizeEmail_(email) {
+  email = (email || '').toString().trim().toLowerCase();
+  var parts = email.split('@');
+  if (parts.length !== 2) return email;
+
+  var local = parts[0];
+  var domain = parts[1];
+
+  // quita +alias
+  local = local.split('+')[0];
+
+  // Gmail: quita puntos
+  if (domain === 'gmail.com' || domain === 'googlemail.com') {
+    local = local.replace(/\./g, '');
+  }
+  return local + '@' + domain;
+}
+
+/**
+ * Parsea listas tipo "A,B;C\nD" en array limpio
+ */
+function parseList_(value) {
+  return String(value || '')
+    .split(/[,\n;]/)
+    .map(function (s) { return s.trim(); })
+    .filter(function (s) { return !!s; });
 }
 
 /**
  * 2. LÓGICA DE VALIDACIÓN (CRÍTICO)
- * Recibe el email de Google, busca en la hoja DOCENTS y devuelve los datos.
+ * Recibe (opcional) un email "hint" del cliente, pero SIEMPRE prioriza el email del contexto.
  */
-function validateUserAccess(email) {
+function validateUserAccess(emailHint) {
   try {
+    // --- PASO 0: EMAIL REAL ---
+    var callerEmail = getCallerEmail_();
+    var effectiveEmail = callerEmail || (emailHint || '').toString().trim().toLowerCase();
+
+    if (!effectiveEmail) {
+      return {
+        authorized: false,
+        message: "No s'ha pogut determinar l'email. Si estàs en entorn extern, no es pot validar sense context GAS."
+      };
+    }
+
     // --- PASO 1: CONEXIÓN ROBUSTA ---
-    // Usamos openById para asegurar que conecta SIEMPRE, sin importar el contexto.
     var ss = SpreadsheetApp.openById(SHEET_ID);
-    
+
     // --- PASO 2: BUSCAR USUARIO EN 'DOCENTS' ---
     var sheetDocents = ss.getSheetByName('DOCENTS');
     if (!sheetDocents) throw new Error("No s'ha trobat la pestanya 'DOCENTS'");
 
     var dataDocents = sheetDocents.getDataRange().getValues();
-    
-    // Buscamos el usuario (Saltamos cabecera fila 0)
+
+    var target = normalizeEmail_(effectiveEmail);
     var docentRow = null;
-    
+
     for (var i = 1; i < dataDocents.length; i++) {
-      // Columna A (índice 0) es el Email
-      var rowEmail = dataDocents[i][0].toString().trim().toLowerCase();
-      
-      if (rowEmail === email.toLowerCase()) {
+      var rowEmail = normalizeEmail_(String(dataDocents[i][0] || ''));
+      if (rowEmail && rowEmail === target) {
         docentRow = dataDocents[i];
-        break; 
+        break;
       }
     }
 
@@ -49,7 +101,7 @@ function validateUserAccess(email) {
     if (!docentRow) {
       return {
         authorized: false,
-        message: "Accés denegat: L'email " + email + " no figura al llistat de DOCENTS."
+        message: "Accés denegat: l'email no figura al llistat de DOCENTS."
       };
     }
 
@@ -59,16 +111,14 @@ function validateUserAccess(email) {
     var isAdmin = false;
 
     if (sheetConfig) {
-      // Usamos el helper para convertir la tabla Config en un objeto útil
       configData = getSystemConfig(sheetConfig);
-      
-      // Verificamos si el cargo del usuario está en la lista de 'admin_roles'
-      var userRole = docentRow[5].toString(); // Columna F: Càrrec
-      var adminRoles = configData['admin_roles'] || '';
-      
-      if (adminRoles.indexOf(userRole) !== -1) {
-        isAdmin = true;
-      }
+
+      // Columna F: Càrrec
+      var userRole = String(docentRow[5] || '').trim();
+      var adminRoles = parseList_(configData['admin_roles']);
+
+      // Match EXACTO
+      isAdmin = adminRoles.indexOf(userRole) !== -1;
     }
 
     // --- PASO 4: DEVOLVER DATOS LIMPIOS AL FRONTEND ---
@@ -78,16 +128,16 @@ function validateUserAccess(email) {
       ref:      docentRow[1], // B: Ref
       name:     docentRow[2], // C: Nom
       surname:  docentRow[3], // D: Cognom
-      role:     docentRow[5], // F: Càrrec
-      isAdmin:  isAdmin,
-      config:   configData    // Enviamos la config al front por si acaso
+      role:     String(docentRow[5] || '').trim(), // F: Càrrec
+      isAdmin:  isAdmin
+      // No enviamos CONFIG entera por seguridad.
     };
 
   } catch (error) {
     Logger.log("FATAL ERROR en validateUserAccess: " + error.toString());
     return {
       authorized: false,
-      message: "Error del servidor (GAS): " + error.message
+      message: "Error del servidor (GAS): " + (error && error.message ? error.message : String(error))
     };
   }
 }
@@ -99,17 +149,13 @@ function validateUserAccess(email) {
 function getSystemConfig(sheet) {
   var config = {};
   if (!sheet) return config;
-  
+
   var data = sheet.getDataRange().getValues();
-  
-  // Asumimos Columna A = Clave, Columna B = Valor
-  // Empezamos en 1 para saltar cabeceras
+
   for (var i = 1; i < data.length; i++) {
-    var key = data[i][0].toString();
+    var key = String(data[i][0] || '').trim();
     var value = data[i][1];
-    if (key) {
-      config[key] = value;
-    }
+    if (key) config[key] = value;
   }
   return config;
 }
