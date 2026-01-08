@@ -1,34 +1,47 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuth } from "./AuthContext";
 
-export default function BootstrapAuth() {
-  const { login, logout } = useAuth();
-  const [error, setError] = useState("");
+/* global google */
+
+export default function BootstrapAuth({ children }) {
+  const { setStatus, setUser, setMessage, status } = useAuth();
 
   useEffect(() => {
-    if (!window.google?.script?.run) {
-      setError("No estàs dins una WebApp de Google Apps Script.");
-      return;
-    }
+    setStatus("LOADING");
 
-    window.google.script.run
+    google.script.run
       .withSuccessHandler((res) => {
-        if (res?.authorized) login(res);
-        else {
-          logout();
-          setError(res?.message || "Accés no autoritzat.");
+        if (!res || !res.authorized) {
+          setMessage(res?.message || "Accés bloquejat.");
+          setStatus("BLOCKED");
+          return;
         }
+
+        setUser(res);
+        setStatus("AUTHORIZED");
       })
-      .withFailureHandler((err) => {
-        logout();
-        setError(err?.message || String(err));
+      .withFailureHandler(() => {
+        setMessage("Error de comunicació amb el servidor.");
+        setStatus("BLOCKED");
       })
       .validateUserAccess();
-  }, [login, logout]);
+  }, [setStatus, setUser, setMessage]);
 
-  return (
-    <div style={{ padding: 32 }}>
-      {!error ? "Verificant accés..." : `Error: ${error}`}
-    </div>
-  );
+  if (status === "LOADING") {
+    return <div className="p-6">Comprovant accés…</div>;
+  }
+
+  if (status === "BLOCKED") {
+    return (
+      <div className="p-6 text-red-600">
+        <h2 className="text-xl font-bold">Accés bloquejat</h2>
+        <p className="mt-2">{message}</p>
+        <p className="mt-4 text-sm text-gray-600">
+          Inicia sessió amb el teu compte XTEC del centre.
+        </p>
+      </div>
+    );
+  }
+
+  return children;
 }
