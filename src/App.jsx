@@ -1,11 +1,11 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-// Auth Imports
+// Auth
+import BootstrapAuth from "./core/auth/BootstrapAuth";
 import { AuthProvider, useAuth } from './core/auth/AuthContext';
-import LoginPage from './core/auth/LoginPage';
 
-// Layout Imports
+// Layout
 import SidebarLayout from "./core/layout/SidebarLayout";
 import Sidebar from "./core/layout/Sidebar";
 import SidebarHeader from "./core/layout/SidebarHeader";
@@ -26,8 +26,7 @@ const PlaceholderView = ({ title, color }) => (
  * COMPONENTE GUARDIÁN
  */
 function AppRoutes() {
-  // 1. AQUI FALTABA "logout"
-  const { user, loading, logout } = useAuth(); 
+  const { user, loading, logout } = useAuth();
 
   if (loading) {
     return (
@@ -37,9 +36,7 @@ function AppRoutes() {
     );
   }
 
-  if (!user) {
-    return <LoginPage />;
-  }
+  if (!user) return <BootstrapAuth />;
 
   return (
     <SidebarLayout
@@ -48,12 +45,11 @@ function AppRoutes() {
           header={<SidebarHeader greeting={`Hola, ${user.name}!`} centreName="Escola Jacint Verdaguer" />}
           center={<SidebarNav />}
           footer={
-            <SidebarFooter 
-              userName={`${user.name} ${user.surname}`} 
-              userRole={user.role} 
+            <SidebarFooter
+              userName={`${user.name} ${user.surname}`}
+              userRole={user.role}
               userPicture={user.picture}
-              // 2. AQUI FALTABA PASAR LA FUNCIÓN
-              onLogout={logout} 
+              onLogout={logout}
             />
           }
         />
@@ -75,9 +71,9 @@ function AppRoutes() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <HashRouter>
         <AppRoutes />
-      </BrowserRouter>
+      </HashRouter>
     </AuthProvider>
   );
 }

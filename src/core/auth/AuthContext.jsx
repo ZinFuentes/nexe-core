@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Función LOGIN: Guarda usuario en Estado y en LocalStorage
-  // Esta función es llamada desde LoginPage.jsx cuando Google y el Backend dan el OK
+  // Esta función es llamada desde BootstrapAuth.jsx cuando Google y el Backend dan el OK
   const login = (userData) => {
     setUser(userData);
     localStorage.setItem('nexe_user', JSON.stringify(userData));
