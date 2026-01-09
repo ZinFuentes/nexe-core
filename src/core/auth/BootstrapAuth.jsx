@@ -1,47 +1,47 @@
 import { useEffect } from "react";
 import { useAuth } from "./AuthContext";
 
-/* global google */
+
+function isGAS() {
+  return (
+    typeof window !== "undefined" &&
+    !!window.google &&
+    !!window.google.script &&
+    !!window.google.script.run
+  );
+}
 
 export default function BootstrapAuth({ children }) {
-  const { setStatus, setUser, setMessage, status } = useAuth();
+  const { setLoading, setAuthorized, setBlocked } = useAuth();
 
   useEffect(() => {
-    setStatus("LOADING");
+    // DEV local
+    const bypass =
+      import.meta.env.DEV &&
+      (import.meta.env.VITE_AUTH_BYPASS === "true" ||
+        import.meta.env.VITE_AUTH_BYPASS === undefined);
 
-    google.script.run
+    if (!isGAS()) {
+      if (bypass) {
+        setAuthorized({ email: "dev@local", role: "ADMIN", displayName: "Local Dev" });
+      } else {
+        setBlocked("Entorn local sense GAS. Activa VITE_AUTH_BYPASS=true.");
+      }
+      return;
+    }
+
+    setLoading();
+
+    window.google.script.run
       .withSuccessHandler((res) => {
-        if (!res || !res.authorized) {
-          setMessage(res?.message || "Accés bloquejat.");
-          setStatus("BLOCKED");
-          return;
-        }
-
-        setUser(res);
-        setStatus("AUTHORIZED");
+        if (res?.ok) setAuthorized(res.user || {});
+        else setBlocked(res?.message || "Accés denegat");
       })
-      .withFailureHandler(() => {
-        setMessage("Error de comunicació amb el servidor.");
-        setStatus("BLOCKED");
+      .withFailureHandler((err) => {
+        setBlocked(err?.message || String(err));
       })
       .validateUserAccess();
-  }, [setStatus, setUser, setMessage]);
-
-  if (status === "LOADING") {
-    return <div className="p-6">Comprovant accés…</div>;
-  }
-
-  if (status === "BLOCKED") {
-    return (
-      <div className="p-6 text-red-600">
-        <h2 className="text-xl font-bold">Accés bloquejat</h2>
-        <p className="mt-2">{message}</p>
-        <p className="mt-4 text-sm text-gray-600">
-          Inicia sessió amb el teu compte XTEC del centre.
-        </p>
-      </div>
-    );
-  }
+  }, [setLoading, setAuthorized, setBlocked]);
 
   return children;
 }
