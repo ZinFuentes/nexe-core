@@ -1,19 +1,36 @@
+import React, { useState } from "react";
+
 export default function Sidebar({ header, center, footer }) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const toggle = () => setIsCollapsed((v) => !v);
+
   return (
     <aside
-      className="flex h-full flex-col border-r border-border bg-surface"
-      style={{ width: 280 }}
+      className={`
+        flex flex-col h-full bg-white border-r border-slate-200
+        transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
+        overflow-hidden
+        ${isCollapsed ? "w-[68px]" : "w-[220px]"}
+      `}
     >
-      <div className="px-6" style={{ height: "20%" }}>
-        {header}
+      {/* Zona Branding */}
+      <div className="flex-shrink-0">
+        {header && React.cloneElement(header, { isCollapsed, onToggle: toggle })}
       </div>
 
-      <div className="flex-1 px-6" style={{ height: "60%" }}>
-        {center}
+      {/* Zona Navegación */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide">
+        {center && React.cloneElement(center, { isCollapsed })}
       </div>
 
-      <div className="px-6" style={{ height: "15%" }}>
-        {footer}
+      {/* Zona Usuario */}
+      <div
+        className={`
+          flex-shrink-0 border-t border-slate-100/60 bg-white
+          ${isCollapsed ? "p-1" : "p-1.5"}
+        `}
+      >
+        {footer && React.cloneElement(footer, { isCollapsed })}
       </div>
     </aside>
   );

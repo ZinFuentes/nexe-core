@@ -1,31 +1,55 @@
-function NavItem({ label, colorClass }) {
-  return (
-    <button
-      type="button"
-      className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-left hover:bg-surfaceHover"
-    >
-      <span className={`h-2 w-2 rounded-full ${colorClass}`} />
-      <span className="text-sm font-medium">{label}</span>
-    </button>
-  );
-}
+import { NavLink } from "react-router-dom";
+import NavItem from "./NavItem";
+import { NAVIGATION_CONFIG } from "../config/navigation";
 
-export default function SidebarNav() {
+export default function SidebarNav({ isCollapsed }) {
   return (
-    <div className="flex h-full flex-col py-6">
-      <div className="space-y-2">
-        <NavItem label="L'escola, avui" colorClass="bg-module-school" />
-        <NavItem label="El meu espai" colorClass="bg-module-me" />
+    <nav className="flex flex-col h-full">
+      {/* Aire bajo la marca */}
+      <div className={`${isCollapsed ? "h-4" : "h-12"}`} />
+
+      {/* DASHBOARDS */}
+      <div className="px-3 space-y-1">
+        {NAVIGATION_CONFIG.dashboards.map((item) => (
+          <NavLink key={item.key} to={item.path} style={{ textDecoration: "none" }}>
+            {({ isActive }) => (
+              <NavItem
+                item={item}
+                isActive={isActive}
+                isCollapsed={isCollapsed}
+                emphasis="primary"
+              />
+            )}
+          </NavLink>
+        ))}
       </div>
 
-      <div className="mt-8 text-[13px] text-text-tertiary">REPOSITORIS</div>
+      {/* Separación por espacio, no por línea */}
+      <div className={`${isCollapsed ? "h-4" : "h-6"}`} />
 
-      <div className="mt-2 space-y-2">
-        <NavItem label="Sabers" colorClass="bg-module-knowledge" />
-        <NavItem label="Persones" colorClass="bg-module-people" />
-        <NavItem label="Papers" colorClass="bg-module-papers" />
-        <NavItem label="Gestió" colorClass="bg-module-management" />
+      {/* ARXIU / REPOS */}
+      <div className="px-3 flex-1">
+          {!isCollapsed && (
+            <div className="px-1 mb-3 text-[11px] font-semibold text-slate-500 uppercase tracking-widest opacity-80">
+              REPOSITORIS
+            </div>
+          )}
+
+        <div className="space-y-1">
+          {NAVIGATION_CONFIG.repositories.map((item) => (
+            <NavLink key={item.key} to={item.path} style={{ textDecoration: "none" }}>
+              {({ isActive }) => (
+                <NavItem
+                  item={item}
+                  isActive={isActive}
+                  isCollapsed={isCollapsed}
+                  emphasis="normal"
+                />
+              )}
+            </NavLink>
+          ))}
+        </div>
       </div>
-    </div>
+    </nav>
   );
 }

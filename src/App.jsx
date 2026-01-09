@@ -1,26 +1,24 @@
-import SidebarLayout from "./core/layout/SidebarLayout";
-import Sidebar from "./core/layout/Sidebar";
-import SidebarHeader from "./core/layout/SidebarHeader";
-import SidebarNav from "./core/layout/SidebarNav";
-import SidebarFooter from "./core/layout/SidebarFooter";
+import { AuthProvider, useAuth } from "./core/auth/AuthContext";
+import BootstrapAuth from "./core/auth/BootstrapAuth";
+
+import AdminView from "./views/ManagementView";
+import TeacherView from "./views/SchoolView";
+import MeView from "./views/MeView";
+
+function RoleRouter() {
+  const { user } = useAuth();
+
+  if (user.role === "ADMIN") return <AdminView />;
+  if (user.role === "DOCENT") return <TeacherView />;
+  return <MeView />;
+}
 
 export default function App() {
   return (
-    <SidebarLayout
-      sidebar={
-        <Sidebar
-          header={<SidebarHeader greeting="Bona tarda, Cinto!" centreName="Escola Jacint Verdaguer" />}
-          center={<SidebarNav />}
-          footer={<SidebarFooter userName="Cinto Fuentes" userRole="Coordinador" />}
-        />
-      }
-    >
-      <div className="p-12">
-        <h1 className="text-2xl font-semibold text-text-primary">Main content</h1>
-        <p className="mt-4 text-text-secondary">
-          Aquí anirà el routing i les vistes dels mòduls.
-        </p>
-      </div>
-    </SidebarLayout>
+    <AuthProvider>
+      <BootstrapAuth>
+        <RoleRouter />
+      </BootstrapAuth>
+    </AuthProvider>
   );
 }
