@@ -1,12 +1,16 @@
-import { MoreHorizontal } from "lucide-react";
+import { Mail, MoreHorizontal } from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
 
-export default function SidebarFooter({
-  userName = "Usuari",
-  userRole = "Docent",
-  userPhoto = null,
-  isCollapsed
-}) {
-  const initial = userName ? userName[0].toUpperCase() : "U";
+export default function SidebarFooter({ isCollapsed }) {
+  const { user } = useAuth();
+
+  const email = (user?.email || "").trim();
+  const name = (user?.name || "").trim();
+  const surname = (user?.surname || "").trim();
+  const cargo = (user?.cargo || "").trim();
+
+  const fullName = `${name} ${surname}`.trim() || email || "Usuari";
+  const displayCargo = cargo || "Sense càrrec";
 
   return (
     <button
@@ -17,24 +21,20 @@ export default function SidebarFooter({
         ${isCollapsed ? "justify-center p-1" : "gap-2 px-2 py-1.5 hover:bg-slate-50"}
       `}
       aria-label="User menu"
+      title={email || fullName}
     >
-      {/* Avatar */}
-      <div className="h-[26px] w-[26px] rounded-full bg-slate-200 overflow-hidden flex items-center justify-center shrink-0 border border-slate-100">
-        {userPhoto ? (
-          <img src={userPhoto} alt={userName} className="h-full w-full object-cover" />
-        ) : (
-          <span className="text-[11px] font-bold text-slate-600">{initial}</span>
-        )}
+      <div className="h-[26px] w-[26px] rounded-full bg-slate-100 overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 text-slate-600">
+        <Mail size={16} />
       </div>
 
       {!isCollapsed && (
         <>
           <div className="flex flex-col items-start min-w-0 text-left">
             <div className="text-[13px] font-medium leading-tight truncate text-slate-900 w-full">
-              {userName}
+              {fullName}
             </div>
             <div className="text-[11px] text-slate-400 font-medium leading-tight truncate w-full">
-              {userRole}
+              {displayCargo}
             </div>
           </div>
 
