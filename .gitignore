@@ -5,3 +5,9 @@ creds.json
 .env
 .env.*
 .clasp.json
+
+# build
+/dist/
+
+# deps
+/node_modules/

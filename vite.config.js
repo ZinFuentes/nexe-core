@@ -1,21 +1,12 @@
-<<<<<<< HEAD
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-=======
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { viteSingleFile } from "vite-plugin-singlefile";
 import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
 import { fileURLToPath, URL } from "node:url";
->>>>>>> 53f641d (Add AppShell, wire SidebarFooter to auth, add @ alias, expose cargo)
 
 // https://vite.dev/config/
 export default defineConfig({
-<<<<<<< HEAD
-  plugins: [react()],
-})
-=======
   base: "./",
   plugins: [react(), viteSingleFile()],
   resolve: {
@@ -39,4 +30,3 @@ export default defineConfig({
     },
   },
 });
->>>>>>> 53f641d (Add AppShell, wire SidebarFooter to auth, add @ alias, expose cargo)
