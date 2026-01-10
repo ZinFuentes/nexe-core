@@ -12,4 +12,5 @@ dist/
 *.log
 
 # Clasp (solo si no quieres versionarlo)
+# .clasp.json
 .clasp.json
