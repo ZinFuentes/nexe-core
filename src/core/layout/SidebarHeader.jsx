@@ -1,45 +1,90 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo } from "react";
 import { Menu } from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
+import brandNexe from "../../assets/brand-nexe.png";
 
-export default function SidebarHeader({
-  centreName = "Jacint Verdaguer",
-  isCollapsed,
-  onToggle
-}) {
-  const [dateTime, setDateTime] = useState(new Date());
+function getGreeting(now = new Date()) {
+  const h = now.getHours();
+  if (h >= 6 && h < 12) return "Bon dia";
+  if (h >= 12 && h < 20) return "Bona tarda";
+  return "Bona nit";
+}
 
-  useEffect(() => {
-    const timer = setInterval(() => setDateTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
+export default function SidebarHeader({ isCollapsed, onToggle }) {
+  const { user } = useAuth();
 
-  const formattedTime = dateTime.toLocaleTimeString("ca-ES", {
-    hour: "2-digit",
-    minute: "2-digit"
-  });
+  const greeting = useMemo(() => getGreeting(new Date()), []);
+  const name = (user?.name || "").trim();
+  const email = (user?.email || "").trim();
+  const displayName = name || (email ? email.split("@")[0] : "");
+
+  const Brand = (
+    <img
+      src={brandNexe}
+      alt="NEXE"
+      className="h-[26px] w-[26px] object-contain"
+      draggable="false"
+    />
+  );
 
   return (
-    <div className={`relative w-full bg-white ${isCollapsed ? "h-[52px]" : "h-[64px]"}`}>
-      {!isCollapsed && (
-        <div className="absolute top-2 left-3 select-none leading-tight max-w-[180px]">
-          <div className="text-[13px] font-medium tracking-tight text-slate-800 truncate">
-            {centreName}
-          </div>
-          <div className="mt-1 text-[10px] font-semibold tracking-widest text-slate-400 tabular-nums">
-            · {formattedTime} h
+    <div className="w-full bg-white">
+      <div className="h-14 flex items-center">
+        <div className={["w-full", isCollapsed ? "px-0" : "px-2"].join(" ")}>
+          <div className="h-9 flex items-center rounded-md">
+            {/* LEFT SLOT */}
+            <div
+              className={[
+                "shrink-0 h-9 flex items-center justify-center",
+                isCollapsed ? "w-14" : "w-10",
+              ].join(" ")}
+            >
+              {isCollapsed ? (
+                <button
+                  type="button"
+                  onClick={onToggle}
+                  aria-label="Obrir sidebar"
+                  title="Obrir"
+                  className="group h-9 w-full flex items-center justify-center rounded-md hover:bg-slate-100"
+                >
+                  <span className="block group-hover:hidden">{Brand}</span>
+                  <span className="hidden group-hover:block text-slate-700">
+                    <Menu size={20} />
+                  </span>
+                </button>
+              ) : (
+                Brand
+              )}
+            </div>
+
+            {/* CENTER */}
+            {!isCollapsed && (
+              <div className="min-w-0 flex-1 px-2">
+                <div className="truncate text-[12px] font-semibold leading-tight text-slate-900">
+                  {greeting}
+                  {displayName ? `, ${displayName}` : ""}
+                </div>
+                <div className="truncate text-[10px] font-medium leading-tight text-slate-400">
+                  {displayName ? "Sessió activa" : "Sessió no iniciada"}
+                </div>
+              </div>
+            )}
+
+            {/* RIGHT SLOT */}
+            {!isCollapsed && (
+              <button
+                type="button"
+                onClick={onToggle}
+                aria-label="Tancar sidebar"
+                title="Tancar"
+                className="shrink-0 h-9 w-10 flex items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+              >
+                <Menu size={20} />
+              </button>
+            )}
           </div>
         </div>
-      )}
-
-      <button
-        onClick={onToggle}
-        type="button"
-        aria-label="Toggle sidebar"
-        className="absolute top-2 right-2 p-1 rounded-md outline-none text-slate-300 hover:text-slate-500 transition-colors"
-      >
-        <Menu size={16} />
-      </button>
+      </div>
     </div>
   );
 }
-

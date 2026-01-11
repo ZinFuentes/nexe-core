@@ -1,46 +1,56 @@
-import { Mail, MoreHorizontal } from "lucide-react";
-import { useAuth } from "../auth/AuthContext";
+import { NavLink } from "react-router-dom";
+import { Settings } from "lucide-react";
 
-export default function SidebarFooter({ isCollapsed }) {
-  const { user } = useAuth();
-
-  const email = (user?.email || "").trim();
-  const name = (user?.name || "").trim();
-  const surname = (user?.surname || "").trim();
-  const cargo = (user?.cargo || "").trim();
-
-  const fullName = `${name} ${surname}`.trim() || email || "Usuari";
-  const displayCargo = cargo || "Sense càrrec";
-
+function DockRow({ isActive, isCollapsed, icon, label }) {
   return (
     <button
       type="button"
-      className={`
-        flex w-full items-center rounded-md outline-none
-        transition-colors duration-150
-        ${isCollapsed ? "justify-center p-1" : "gap-2 px-2 py-1.5 hover:bg-slate-50"}
-      `}
-      aria-label="User menu"
-      title={email || fullName}
+      className={[
+        "group relative w-full rounded-md outline-none transition-colors duration-75",
+        "h-9",
+        isCollapsed ? "px-0" : "px-2",
+      ].join(" ")}
     >
-      <div className="h-[26px] w-[26px] rounded-full bg-slate-100 overflow-hidden flex items-center justify-center shrink-0 border border-slate-200 text-slate-600">
-        <Mail size={16} />
+      <div
+        className={[
+          "absolute inset-0 rounded-md transition-opacity duration-75",
+          isActive
+            ? "bg-slate-100/80 opacity-100"
+            : "opacity-0 group-hover:bg-slate-100/60 group-hover:opacity-100",
+        ].join(" ")}
+      />
+
+      <div className="relative z-10 flex h-full w-full items-center">
+        <span
+          className={[
+            "shrink-0 flex items-center justify-center",
+            isCollapsed ? "w-14" : "w-10",
+          ].join(" ")}
+        >
+          {icon}
+        </span>
+
+        {!isCollapsed && (
+          <span className="truncate text-[13px] font-medium text-slate-900">
+            {label}
+          </span>
+        )}
       </div>
-
-      {!isCollapsed && (
-        <>
-          <div className="flex flex-col items-start min-w-0 text-left">
-            <div className="text-[13px] font-medium leading-tight truncate text-slate-900 w-full">
-              {fullName}
-            </div>
-            <div className="text-[11px] text-slate-400 font-medium leading-tight truncate w-full">
-              {displayCargo}
-            </div>
-          </div>
-
-          <MoreHorizontal size={15} className="ml-auto text-slate-300" />
-        </>
-      )}
     </button>
+  );
+}
+
+export default function SidebarFooter({ isCollapsed, configPath = "/config" }) {
+  return (
+    <NavLink to={configPath} style={{ textDecoration: "none" }}>
+      {({ isActive }) => (
+        <DockRow
+          isActive={isActive}
+          isCollapsed={isCollapsed}
+          label="Configuració"
+          icon={<Settings size={18} className="text-slate-600" />}
+        />
+      )}
+    </NavLink>
   );
 }

@@ -1,7 +1,7 @@
 import { AuthProvider, useAuth } from "./core/auth/AuthContext";
 import BootstrapAuth from "./core/auth/BootstrapAuth";
 
-import { HashRouter } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import SidebarLayout from "./core/layout/SidebarLayout";
 import Sidebar from "./core/layout/Sidebar";
@@ -9,9 +9,12 @@ import SidebarHeader from "./core/layout/SidebarHeader";
 import SidebarNav from "./core/layout/SidebarNav";
 import SidebarFooter from "./core/layout/SidebarFooter";
 
-import AdminView from "./views/ManagementView";
-import TeacherView from "./views/SchoolView";
+import ManagementView from "./views/ManagementView";
+import SchoolView from "./views/SchoolView";
 import MeView from "./views/MeView";
+import PeopleView from "./views/PeopleView";
+import PapersView from "./views/PapersView";
+import KnowledgeView from "./views/KnowledgeView";
 
 function RoleRouter() {
   const { status, user, message } = useAuth();
@@ -20,7 +23,6 @@ function RoleRouter() {
   if (status === "BLOCKED") return <div>{message || "Accés denegat"}</div>;
 
   const role = user?.role || "DOCENT";
-  const View = role === "ADMIN" ? AdminView : role === "DOCENT" ? TeacherView : MeView;
 
   return (
     <SidebarLayout
@@ -32,7 +34,23 @@ function RoleRouter() {
         />
       }
     >
-      <View />
+      <Routes>
+        <Route path="/" element={<Navigate to="/school" replace />} />
+
+        <Route path="/school" element={<SchoolView />} />
+        <Route path="/me" element={<MeView />} />
+        <Route path="/knowledge" element={<KnowledgeView />} />
+        <Route path="/people" element={<PeopleView />} />
+        <Route path="/papers" element={<PapersView />} />
+
+        {/* Protegido por rol */}
+        <Route
+          path="/management"
+          element={role === "ADMIN" ? <ManagementView /> : <Navigate to="/school" replace />}
+        />
+
+        <Route path="*" element={<Navigate to="/school" replace />} />
+      </Routes>
     </SidebarLayout>
   );
 }

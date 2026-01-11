@@ -101,7 +101,10 @@ function validateUserAccess() {
         const ref = String(row[1] || "").trim();
         const firstName = String(row[2] || "").trim();
         const lastName = String(row[3] || "").trim();
-        const role = String(row[5] || "").trim(); // F
+
+        const cargo = String(row[4] || "").trim();        // E: Càrrec
+        const cicle = String(row[6] || "").trim().toUpperCase(); // G: Cicle
+
         const displayName = (firstName + " " + lastName).trim();
 
         return {
@@ -109,12 +112,14 @@ function validateUserAccess() {
           user: {
             email: rowEmail,
             ref,
-            firstName,
-            lastName,
+            name: firstName,
+            surname: lastName,
             displayName,
-            role,
+            cargo,          // <-- PARA EL FOOTER
+            cicle,          // <-- PARA EL COLOR
             initials: initials_(firstName, lastName),
-            isAdmin: false
+            role: cargo,    // si quieres usar ADMIN / DOCENT
+            isAdmin: cargo === "ADMIN"
           }
         };
       }

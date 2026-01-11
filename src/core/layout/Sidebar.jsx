@@ -6,30 +6,26 @@ export default function Sidebar({ header, center, footer }) {
 
   return (
     <aside
-      className={`
-        flex flex-col h-full bg-white border-r border-slate-200
-        transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
-        overflow-hidden
-        ${isCollapsed ? "w-[68px]" : "w-[220px]"}
-      `}
+      className={[
+        "flex flex-col",
+        "h-[calc(100vh-12px)]",
+        "my-1.5",
+        "bg-white",
+        "border-r border-slate-200",
+        "overflow-hidden",
+        isCollapsed ? "w-14" : "w-[240px]",
+        "transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+      ].join(" ")}
     >
-      {/* Zona Branding */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         {header && React.cloneElement(header, { isCollapsed, onToggle: toggle })}
       </div>
 
-      {/* Zona Navegación */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-0 pt-2">
         {center && React.cloneElement(center, { isCollapsed })}
       </div>
 
-      {/* Zona Usuario */}
-      <div
-        className={`
-          flex-shrink-0 border-t border-slate-100/60 bg-white
-          ${isCollapsed ? "p-1" : "p-1.5"}
-        `}
-      >
+      <div className="shrink-0 border-t border-slate-200 px-0 py-1.5">
         {footer && React.cloneElement(footer, { isCollapsed })}
       </div>
     </aside>

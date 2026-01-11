@@ -39,27 +39,36 @@ export const TOKENS = {
     }
   },
 
-  // TOKENS DEL SHELL (UI base). Esto NO lo tocan los mundos.
   shell: {
     sidebar: {
-      width: 228,
-      collapsedWidth: 68,
-      headerHeight: 64,
+      // Layout widths (match: expanded ~240px, collapsed = w-14)
+      width: 240,
+      collapsedWidth: 56,
 
-      itemHeightPrimary: 32,
-      itemHeightSecondary: 28,
+      // Header block (matches h-12)
+      headerHeight: 56,
 
+      // Unified vertical rhythm (recommended: NavItem h-10)
+      itemHeightPrimary: 40,
+      itemHeightSecondary: 40,
+
+      // Icon sizes (match what you're actually using)
       iconSizePrimary: 18,
-      iconSizeSecondary: 16,
+      iconSizeSecondary: 18,
 
-      footerAvatarSize: 26,
+      // Collapsed inner column (sidebar 56px -> inner 48px centered)
+      collapsedItemWidth: 56,   // w-12
+      collapsedIconSlot: 56,    // w-12
 
-      paddingX: 8,      // equivale a px-2
-      footerPadding: 6  // ~ p-1.5
+      // Footer
+      footerAvatarSize: 20,
+      footerPadding: 6,         // equivalent to p-1.5 (6px)
+
+      // Horizontal padding in expanded state (keep coherent with your px-2 etc.)
+      paddingX: 8
     }
   },
 
-  // Layout general (contenido, cards, etc.)
   spacing: {
     contentMaxWidth: 1200,
     contentPadding: 48,
