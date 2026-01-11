@@ -14,3 +14,5 @@ dist/
 # Clasp (solo si no quieres versionarlo)
 # .clasp.json
 .clasp.json
+audit.sh
+audit.sh
